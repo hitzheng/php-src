@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | Zend Engine                                                          |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2017 Zend Technologies Ltd. (http://www.zend.com) |
+   | Copyright (c) 1998-2018 Zend Technologies Ltd. (http://www.zend.com) |
    +----------------------------------------------------------------------+
    | This source file is subject to version 2.00 of the Zend license,     |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -17,16 +17,15 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id$ */
-
 #ifndef ZEND_H
 #define ZEND_H
 
-#define ZEND_VERSION "3.2.0-dev"
+#define ZEND_VERSION "3.4.0-dev"
 
 #define ZEND_ENGINE_3
 
 #include "zend_types.h"
+#include "zend_map_ptr.h"
 #include "zend_errors.h"
 #include "zend_alloc.h"
 #include "zend_llist.h"
@@ -84,22 +83,24 @@ struct _zend_unserialize_data;
 typedef struct _zend_serialize_data zend_serialize_data;
 typedef struct _zend_unserialize_data zend_unserialize_data;
 
+typedef struct _zend_class_name {
+	zend_string *name;
+	zend_string *lc_name;
+} zend_class_name;
+
 typedef struct _zend_trait_method_reference {
 	zend_string *method_name;
-	zend_class_entry *ce;
 	zend_string *class_name;
 } zend_trait_method_reference;
 
 typedef struct _zend_trait_precedence {
-	zend_trait_method_reference *trait_method;
-	union {
-		zend_class_entry  *ce;
-		zend_string       *class_name;
-	} *exclude_from_classes;
+	zend_trait_method_reference trait_method;
+	uint32_t num_excludes;
+	zend_string *exclude_class_names[1];
 } zend_trait_precedence;
 
 typedef struct _zend_trait_alias {
-	zend_trait_method_reference *trait_method;
+	zend_trait_method_reference trait_method;
 
 	/**
 	* name for method to be added
@@ -115,7 +116,11 @@ typedef struct _zend_trait_alias {
 struct _zend_class_entry {
 	char type;
 	zend_string *name;
-	struct _zend_class_entry *parent;
+	/* class_entry or string depending on ZEND_ACC_LINKED */
+	union {
+		zend_class_entry *parent;
+		zend_string *parent_name;
+	};
 	int refcount;
 	uint32_t ce_flags;
 
@@ -123,32 +128,35 @@ struct _zend_class_entry {
 	int default_static_members_count;
 	zval *default_properties_table;
 	zval *default_static_members_table;
-	zval *static_members_table;
+	ZEND_MAP_PTR_DEF(zval *, static_members_table);
 	HashTable function_table;
 	HashTable properties_info;
 	HashTable constants_table;
 
-	union _zend_function *constructor;
-	union _zend_function *destructor;
-	union _zend_function *clone;
-	union _zend_function *__get;
-	union _zend_function *__set;
-	union _zend_function *__unset;
-	union _zend_function *__isset;
-	union _zend_function *__call;
-	union _zend_function *__callstatic;
-	union _zend_function *__tostring;
-	union _zend_function *__debugInfo;
-	union _zend_function *serialize_func;
-	union _zend_function *unserialize_func;
+	zend_function *constructor;
+	zend_function *destructor;
+	zend_function *clone;
+	zend_function *__get;
+	zend_function *__set;
+	zend_function *__unset;
+	zend_function *__isset;
+	zend_function *__call;
+	zend_function *__callstatic;
+	zend_function *__tostring;
+	zend_function *__debugInfo;
+	zend_function *serialize_func;
+	zend_function *unserialize_func;
 
-	zend_class_iterator_funcs iterator_funcs;
+	/* allocated only if class implements Iterator or IteratorAggregate interface */
+	zend_class_iterator_funcs *iterator_funcs_ptr;
 
 	/* handlers */
-	zend_object* (*create_object)(zend_class_entry *class_type);
+	union {
+		zend_object* (*create_object)(zend_class_entry *class_type);
+		int (*interface_gets_implemented)(zend_class_entry *iface, zend_class_entry *class_type); /* a class implements this interface */
+	};
 	zend_object_iterator *(*get_iterator)(zend_class_entry *ce, zval *object, int by_ref);
-	int (*interface_gets_implemented)(zend_class_entry *iface, zend_class_entry *class_type); /* a class implements this interface */
-	union _zend_function *(*get_static_method)(zend_class_entry *ce, zend_string* method);
+	zend_function *(*get_static_method)(zend_class_entry *ce, zend_string* method);
 
 	/* serializer callbacks */
 	int (*serialize)(zval *object, unsigned char **buffer, size_t *buf_len, zend_serialize_data *data);
@@ -156,9 +164,14 @@ struct _zend_class_entry {
 
 	uint32_t num_interfaces;
 	uint32_t num_traits;
-	zend_class_entry **interfaces;
 
-	zend_class_entry **traits;
+	/* class_entry or string(s) depending on ZEND_ACC_LINKED */
+	union {
+		zend_class_entry **interfaces;
+		zend_class_name *interface_names;
+	};
+
+	zend_class_name *trait_names;
 	zend_trait_alias **trait_aliases;
 	zend_trait_precedence **trait_precedences;
 
@@ -189,7 +202,7 @@ typedef struct _zend_utility_functions {
 	void (*printf_to_smart_string_function)(smart_string *buf, const char *format, va_list ap);
 	void (*printf_to_smart_str_function)(smart_str *buf, const char *format, va_list ap);
 	char *(*getenv_function)(char *name, size_t name_len);
-	zend_string *(*resolve_path_function)(const char *filename, int filename_len);
+	zend_string *(*resolve_path_function)(const char *filename, size_t filename_len);
 } zend_utility_functions;
 
 typedef struct _zend_utility_values {
@@ -222,7 +235,7 @@ BEGIN_EXTERN_C()
 int zend_startup(zend_utility_functions *utility_functions, char **extensions);
 void zend_shutdown(void);
 void zend_register_standard_ini_entries(void);
-void zend_post_startup(void);
+int zend_post_startup(void);
 void zend_set_utility_values(zend_utility_values *utility_values);
 
 ZEND_API ZEND_COLD void _zend_bailout(const char *filename, uint32_t lineno);
@@ -232,12 +245,21 @@ ZEND_API size_t zend_spprintf(char **message, size_t max_len, const char *format
 ZEND_API zend_string *zend_vstrpprintf(size_t max_len, const char *format, va_list ap);
 ZEND_API zend_string *zend_strpprintf(size_t max_len, const char *format, ...) ZEND_ATTRIBUTE_FORMAT(printf, 2, 3);
 
+/* Same as zend_spprintf and zend_strpprintf, without checking of format validity.
+ * For use with custom printf specifiers such as %H. */
+ZEND_API size_t zend_spprintf_unchecked(char **message, size_t max_len, const char *format, ...);
+ZEND_API zend_string *zend_strpprintf_unchecked(size_t max_len, const char *format, ...);
+
 ZEND_API char *get_zend_version(void);
 ZEND_API int zend_make_printable_zval(zval *expr, zval *expr_copy);
 ZEND_API size_t zend_print_zval(zval *expr, int indent);
 ZEND_API void zend_print_zval_r(zval *expr, int indent);
 ZEND_API zend_string *zend_print_zval_r_to_str(zval *expr, int indent);
 ZEND_API void zend_print_flat_zval_r(zval *expr);
+
+#define zend_print_variable(var) \
+	zend_print_zval((var), 0)
+
 ZEND_API ZEND_COLD void zend_output_debug_string(zend_bool trigger_break, const char *format, ...) ZEND_ATTRIBUTE_FORMAT(printf, 2, 3);
 
 ZEND_API void zend_activate(void);
@@ -248,6 +270,7 @@ ZEND_API void zend_deactivate_modules(void);
 ZEND_API void zend_post_deactivate_modules(void);
 
 ZEND_API void free_estring(char **str_p);
+
 END_EXTERN_C()
 
 /* output support */
@@ -269,7 +292,8 @@ extern ZEND_API int (*zend_stream_open_function)(const char *filename, zend_file
 extern void (*zend_printf_to_smart_string)(smart_string *buf, const char *format, va_list ap);
 extern void (*zend_printf_to_smart_str)(smart_str *buf, const char *format, va_list ap);
 extern ZEND_API char *(*zend_getenv)(char *name, size_t name_len);
-extern ZEND_API zend_string *(*zend_resolve_path)(const char *filename, int filename_len);
+extern ZEND_API zend_string *(*zend_resolve_path)(const char *filename, size_t filename_len);
+extern ZEND_API int (*zend_post_startup_cb)(void);
 
 ZEND_API ZEND_COLD void zend_error(int type, const char *format, ...) ZEND_ATTRIBUTE_FORMAT(printf, 2, 3);
 ZEND_API ZEND_COLD void zend_throw_error(zend_class_entry *exception_ce, const char *format, ...) ZEND_ATTRIBUTE_FORMAT(printf, 2, 3);
@@ -283,7 +307,6 @@ ZEND_COLD void zenderror(const char *error);
 #define ZEND_STANDARD_CLASS_DEF_PTR zend_standard_class_def
 extern ZEND_API zend_class_entry *zend_standard_class_def;
 extern ZEND_API zend_utility_values zend_uv;
-extern ZEND_API zval zval_used_for_init;
 
 /* If DTrace is available and enabled */
 extern ZEND_API zend_bool zend_dtrace_enabled;
@@ -308,7 +331,6 @@ END_EXTERN_C()
 
 typedef enum {
 	EH_NORMAL = 0,
-	EH_SUPPRESS,
 	EH_THROW
 } zend_error_handling_t;
 
@@ -336,4 +358,6 @@ ZEND_API void zend_restore_error_handling(zend_error_handling *saved);
  * c-basic-offset: 4
  * indent-tabs-mode: t
  * End:
+ * vim600: sw=4 ts=4 fdm=marker
+ * vim<600: sw=4 ts=4
  */

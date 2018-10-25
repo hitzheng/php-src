@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2017 The PHP Group                                |
+   | Copyright (c) 1997-2018 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -15,10 +15,6 @@
    | Author: Rasmus Lerdorf <rasmus@lerdorf.on.ca>                        |
    +----------------------------------------------------------------------+
 */
-
-/* $Id$ */
-
-/* Synced with php 3.0 revision 1.30 1999-06-16 [ssb] */
 
 #ifndef FILE_H
 #define FILE_H
@@ -62,7 +58,7 @@ PHP_FUNCTION(get_meta_tags);
 PHP_FUNCTION(flock);
 PHP_FUNCTION(fd_set);
 PHP_FUNCTION(fd_isset);
-#if (!defined(__BEOS__) && HAVE_REALPATH) || defined(ZTS)
+#if HAVE_REALPATH || defined(ZTS)
 PHP_FUNCTION(realpath);
 #endif
 #ifdef HAVE_FNMATCH
@@ -146,4 +142,3 @@ extern PHPAPI php_file_globals file_globals;
 
 
 #endif /* FILE_H */
-

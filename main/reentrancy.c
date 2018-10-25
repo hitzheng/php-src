@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2017 The PHP Group                                |
+   | Copyright (c) 1997-2018 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -15,8 +15,6 @@
    | Author: Sascha Schumann <sascha@schumann.cx>                         |
    +----------------------------------------------------------------------+
  */
-
-/* $Id$ */
 
 #include <sys/types.h>
 #include <string.h>
@@ -110,18 +108,6 @@ PHPAPI struct tm *php_gmtime_r(const time_t *const timep, struct tm *p_tm)
 }
 
 #endif
-
-#if defined(__BEOS__)
-
-PHPAPI struct tm *php_gmtime_r(const time_t *const timep, struct tm *p_tm)
-{
-    /* Modified according to LibC definition */
-        if (((struct tm*)gmtime_r(timep, p_tm)) == p_tm)
-                return (p_tm);
-        return (NULL);
-}
-
-#endif /* BEOS */
 
 #if !defined(HAVE_POSIX_READDIR_R)
 

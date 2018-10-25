@@ -1,4 +1,3 @@
-dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(zend.c)
@@ -24,17 +23,12 @@ AH_TOP([
 
 #undef uint
 #undef ulong
-
-/* Define if you want to enable memory limit support */
-#define MEMORY_LIMIT 0
 ])
 
 AH_BOTTOM([
 #ifndef ZEND_ACCONFIG_H_NO_C_PROTOS
 
-#ifdef HAVE_STDLIB_H
-# include <stdlib.h>
-#endif
+#include <stdlib.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -48,11 +42,7 @@ AH_BOTTOM([
 # include <ieeefp.h>
 #endif
 
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# include <strings.h>
-#endif
+#include <string.h>
 
 #if ZEND_BROKEN_SPRINTF
 int zend_sprintf(char *buffer, const char *format, ...);
@@ -60,6 +50,14 @@ int zend_sprintf(char *buffer, const char *format, ...);
 # define zend_sprintf sprintf
 #endif
 
+#if defined(__cplusplus) && __cplusplus >= 201103L
+extern "C++" {
+#include <cmath>
+#define zend_isnan std::isnan
+#define zend_isinf std::isinf
+#define zend_finite std::isfinite
+}
+#else
 #include <math.h>
 
 #ifndef zend_isnan
@@ -91,6 +89,8 @@ int zend_sprintf(char *buffer, const char *format, ...);
 #define zend_finite(a) ((fpclassify((a))!=FP_INFINITE&&fpclassify((a))!=FP_NAN)?1:0)
 #else
 #define zend_finite(a) (zend_isnan(a) ? 0 : zend_isinf(a) ? 0 : 1)
+#endif
+
 #endif
 
 #endif /* ifndef ZEND_ACCONFIG_H_NO_C_PROTOS */
@@ -129,7 +129,8 @@ LIBZEND_OTHER_CHECKS
 ZEND_EXTRA_LIBS="$LIBS"
 LIBS=""
 AC_SUBST(ZEND_EXTRA_LIBS)
-AC_OUTPUT(Makefile)
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
 
 # Local Variables:
 # tab-width: 4

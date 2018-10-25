@@ -1,6 +1,4 @@
-dnl
-dnl $Id$
-dnl
+dnl config.m4 for sapi cgi
 
 PHP_ARG_ENABLE(cgi,,
 [  --disable-cgi           Disable building CGI version of PHP], yes, no)
@@ -27,9 +25,9 @@ if test "$PHP_CGI" != "no"; then
 
     AC_MSG_CHECKING([whether cross-process locking is required by accept()])
     case "`uname -sr`" in
-      IRIX\ 5.* | SunOS\ 5.* | UNIX_System_V\ 4.0)	
+      IRIX\ 5.* | SunOS\ 5.* | UNIX_System_V\ 4.0)
         AC_MSG_RESULT([yes])
-        AC_DEFINE([USE_LOCKING], [1], 
+        AC_DEFINE([USE_LOCKING], [1],
           [Define if cross-process locking is required by accept()])
       ;;
       *)
@@ -74,5 +72,5 @@ if test "$PHP_CGI" != "no"; then
 
     PHP_OUTPUT(sapi/cgi/php-cgi.1)
 else
-  AC_MSG_RESULT(yes)
+  AC_MSG_RESULT(no)
 fi

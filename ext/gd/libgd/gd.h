@@ -46,6 +46,8 @@ extern "C" {
 #include <stdio.h>
 #include "gd_io.h"
 
+/* va_list needed in gdErrorMethod */
+#include <stdarg.h>
 
 /* The maximum number of palette entries in palette-based images.
 	In the wonderful new world of gd 2.0, you can of course have
@@ -366,10 +368,8 @@ gdImagePtr gdImageCreateFromBmp (FILE * inFile);
 gdImagePtr gdImageCreateFromBmpPtr (int size, void *data);
 gdImagePtr gdImageCreateFromBmpCtx (gdIOCtxPtr infile);
 
-int gdJpegGetVersionInt();
 const char * gdPngGetVersionString();
 
-int gdJpegGetVersionInt();
 const char * gdJpegGetVersionString();
 
 /* A custom data source. */

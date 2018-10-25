@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2017 The PHP Group                                |
+   | Copyright (c) 1997-2018 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -17,8 +17,6 @@
    |          Rasmus Lerdorf and Zeev Suraski                             |
    +----------------------------------------------------------------------+
  */
-
-/* $Id$ */
 
 #define ZEND_INCLUDE_FULL_WINDOWS_HEADERS
 
@@ -712,6 +710,7 @@ zend_first_try {
 	if (!parent_req) {
 		php_apache_request_dtor(r);
 		ctx->request_processed = 1;
+		apr_brigade_cleanup(brigade);
 		bucket = apr_bucket_eos_create(r->connection->bucket_alloc);
 		APR_BRIGADE_INSERT_TAIL(brigade, bucket);
 
@@ -735,13 +734,20 @@ static void php_apache_child_init(apr_pool_t *pchild, server_rec *s)
 	apr_pool_cleanup_register(pchild, NULL, php_apache_child_shutdown, apr_pool_cleanup_null);
 }
 
+#ifdef ZEND_SIGNALS
+static void php_apache_signal_init(apr_pool_t *pchild, server_rec *s)
+{
+	zend_signal_init();
+}
+#endif
+
 void php_ap2_register_hook(apr_pool_t *p)
 {
 	ap_hook_pre_config(php_pre_config, NULL, NULL, APR_HOOK_MIDDLE);
 	ap_hook_post_config(php_apache_server_startup, NULL, NULL, APR_HOOK_MIDDLE);
 	ap_hook_handler(php_handler, NULL, NULL, APR_HOOK_MIDDLE);
 #ifdef ZEND_SIGNALS
-	ap_hook_child_init(zend_signal_init, NULL, NULL, APR_HOOK_MIDDLE);
+	ap_hook_child_init(php_apache_signal_init, NULL, NULL, APR_HOOK_MIDDLE);
 #endif
 	ap_hook_child_init(php_apache_child_init, NULL, NULL, APR_HOOK_MIDDLE);
 }

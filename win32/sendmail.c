@@ -1,11 +1,11 @@
-/*
+﻿/*
  *    PHP Sendmail for Windows.
  *
- *  This file is rewriten specificly for PHPFI.  Some functionality
+ *  This file is rewritten specificly for PHPFI.  Some functionality
  *  has been removed (MIME and file attachments).  This code was
  *  modified from code based on code written by Jarle Aase.
  *
- *  This class is based on the original code by Jarle Aase, see bellow:
+ *  This class is based on the original code by Jarle Aase, see below:
  *  wSendmail.cpp  It has been striped of some functionality to match
  *  the requirements of phpfi.
  *
@@ -16,8 +16,6 @@
  *  from http://www.jgaa.com
  *
  */
-
-/* $Id$ */
 
 #include "php.h"				/*php specific */
 #include <stdio.h>
@@ -36,10 +34,7 @@
 
 #include "php_win32_globals.h"
 
-#if HAVE_PCRE || HAVE_BUNDLED_PCRE
 #include "ext/pcre/php_pcre.h"
-#endif
-
 #include "ext/standard/php_string.h"
 #include "ext/date/php_date.h"
 
@@ -53,7 +48,7 @@
 
 /* '*error_message' has to be passed around from php_mail() */
 #define SMTP_ERROR_RESPONSE_SPEC	"SMTP server response: %s"
-/* Convinient way to handle error messages from the SMTP server.
+/* Convenient way to handle error messages from the SMTP server.
    response is ecalloc()d in Ack() itself and efree()d here
    because the content is in *error_message now */
 #define SMTP_ERROR_RESPONSE(response)	{ \
@@ -130,52 +125,43 @@ static char *ErrorMessages[] =
  */
 static zend_string *php_win32_mail_trim_header(char *header)
 {
-
-#if HAVE_PCRE || HAVE_BUNDLED_PCRE
-
 	zend_string *result, *result2;
-	zval replace;
+	zend_string *replace;
 	zend_string *regex;
 
 	if (!header) {
 		return NULL;
 	}
 
-	ZVAL_STRINGL(&replace, PHP_WIN32_MAIL_UNIFY_REPLACE, strlen(PHP_WIN32_MAIL_UNIFY_REPLACE));
+	replace = zend_string_init(PHP_WIN32_MAIL_UNIFY_REPLACE, strlen(PHP_WIN32_MAIL_UNIFY_REPLACE), 0);
 	regex = zend_string_init(PHP_WIN32_MAIL_UNIFY_PATTERN, sizeof(PHP_WIN32_MAIL_UNIFY_PATTERN)-1, 0);
 
 	result = php_pcre_replace(regex,
-				  NULL, header, (int)strlen(header),
-				  &replace,
-				  0,
+				  NULL, header, strlen(header),
+				  replace,
 				  -1,
 				  NULL);
 
-	zval_ptr_dtor(&replace);
-	zend_string_release(regex);
+	zend_string_release_ex(replace, 0);
+	zend_string_release_ex(regex, 0);
 
 	if (NULL == result) {
 		return NULL;
 	}
 
-	ZVAL_STRING(&replace, PHP_WIN32_MAIL_RMVDBL_PATTERN);
+	replace = zend_string_init(PHP_WIN32_MAIL_RMVDBL_PATTERN, strlen(PHP_WIN32_MAIL_RMVDBL_PATTERN), 0);
 	regex = zend_string_init(PHP_WIN32_MAIL_RMVDBL_PATTERN, sizeof(PHP_WIN32_MAIL_RMVDBL_PATTERN)-1, 0);
 
 	result2 = php_pcre_replace(regex,
-				   result, ZSTR_VAL(result), (int)ZSTR_LEN(result),
-				   &replace,
-				  0,
+				   result, ZSTR_VAL(result), ZSTR_LEN(result),
+				   replace,
 				  -1,
 				  NULL);
-	zval_ptr_dtor(&replace);
-	zend_string_release(regex);
-	zend_string_release(result);
+	zend_string_release_ex(replace, 0);
+	zend_string_release_ex(regex, 0);
+	zend_string_release_ex(result, 0);
 
 	return result2;
-#else
-	/* In case we don't have PCRE support (for whatever reason...) simply do nothing and return the unmodified header */
-	return estrdup(header);
-#endif
 }
 
 /*********************************************************************
@@ -222,6 +208,9 @@ PHPAPI int TSendMail(char *host, int *error, char **error_message,
 		/* Create a lowercased header for all the searches so we're finally case
 		 * insensitive when searching for a pattern. */
 		headers_lc = zend_string_tolower(headers_trim);
+		if (headers_lc == headers_trim) {
+			zend_string_release_ex(headers_lc, 0);
+		}
 	}
 
 	/* Fall back to sendmail_from php.ini setting */
@@ -346,9 +335,6 @@ PHPAPI char *GetSMErrorText(int index)
 
 	}
 }
-
-PHPAPI zend_string *php_str_to_str(char *haystack, size_t length, char *needle,
-		size_t needle_len, char *str, size_t str_len);
 
 
 /*********************************************************************
@@ -522,7 +508,7 @@ static int SendText(char *RPath, char *Subject, char *mailTo, char *mailCc, char
 		efree(tempMailTo);
 	}
 	else if (headers) {
-		if (pos1 = strstr(headers_lc, "bcc:")) {
+		if ((pos1 = strstr(headers_lc, "bcc:")) && (pos1 == headers_lc || *(pos1-1) == '\n')) {
 			/* Real offset is memaddress from the original headers + difference of
 			 * string found in the lowercase headrs + 4 characters to jump over
 			 * the bcc: */
@@ -679,8 +665,12 @@ static int PostHeader(char *RPath, char *Subject, char *mailTo, char *xheaders)
 	size_t i;
 
 	if (xheaders) {
+		size_t headers_lc_len;
+
 		headers_lc = estrdup(xheaders);
-		for (i = 0; i < strlen(headers_lc); i++) {
+		headers_lc_len = strlen(headers_lc);
+
+		for (i = 0; i < headers_lc_len; i++) {
 			headers_lc[i] = tolower(headers_lc[i]);
 		}
 	}

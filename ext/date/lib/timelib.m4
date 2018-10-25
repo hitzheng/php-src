@@ -1,7 +1,4 @@
 dnl
-dnl $Id$
-dnl
-dnl
 dnl TL_DEF_HAVE(what [, why])
 dnl
 dnl Generates 'AC_DEFINE(HAVE_WHAT, 1, [WHY])'
@@ -69,11 +66,14 @@ TL_CHECK_INT_TYPE(uint32_t)
 
 dnl Check for headers needed by timelib
 AC_CHECK_HEADERS([ \
+sys/time.h \
 sys/types.h \
-inttypes.h \
 stdint.h \
+dirent.h \
 string.h \
-stdlib.h
+strings.h \
+unistd.h \
+io.h
 ])
 
 dnl Check for strtoll, atoll

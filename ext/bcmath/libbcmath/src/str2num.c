@@ -31,7 +31,6 @@
 
 #include <config.h>
 #include <stdio.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdarg.h>
@@ -105,5 +104,7 @@ bc_str2num (bc_num *num, char *str, int scale)
       for (;strscale > 0; strscale--)
 	*nptr++ = CH_VAL(*ptr++);
     }
-}
 
+  if (bc_is_zero (*num))
+    (*num)->n_sign = PLUS;
+}

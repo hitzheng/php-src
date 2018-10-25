@@ -4,6 +4,7 @@ Test session_save_path() function : error functionality
 session.gc_probability=0
 session.save_path=
 session.name=PHPSESSID
+session.save_handler=files
 --SKIPIF--
 <?php include('skipif.inc'); ?>
 --FILE--
@@ -11,10 +12,10 @@ session.name=PHPSESSID
 
 ob_start();
 
-/* 
+/*
  * Prototype : string session_save_path([string $path])
  * Description : Get and/or set the current session save path
- * Source code : ext/session/session.c 
+ * Source code : ext/session/session.c
  */
 
 echo "*** Testing session_save_path() : error functionality ***\n";
@@ -61,7 +62,7 @@ $inputs = array(
        false,
        TRUE,
        FALSE,
-       
+
        // Empty strings
 /*16*/ "",
        '',
@@ -70,7 +71,7 @@ $inputs = array(
 /*18*/ "Nothing",
        'Nothing',
        $heredoc,
-       
+
        // Object data
 /*21*/ new classA(),
 
@@ -173,4 +174,3 @@ string(0) ""
 Warning: session_save_path() expects parameter 1 to be string, resource given in %s on line %d
 NULL
 Done
-
