@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
@@ -57,7 +55,7 @@ extern zend_class_entry *Spoofchecker_ce_ptr;
 /* Auxiliary macros */
 
 #define SPOOFCHECKER_METHOD_INIT_VARS       \
-    zval*             object  = getThis();   \
+    zval*             object  = ZEND_THIS;  \
     Spoofchecker_object*  co  = NULL;   \
     intl_error_reset(NULL); \
 

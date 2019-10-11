@@ -3,10 +3,11 @@ Test gettype() & settype() functions : usage variations
 --SKIPIF--
 <?php
 if (PHP_INT_SIZE != 4) die("skip this test is for 32bit platform only");
-?>
-if ( strtoupper( substr(PHP_OS, 0, 3) ) == 'MAC' ) {
+
+if (PHP_OS_FAMILY === 'Darwin') {
     die('skip Do not run on MacOS');
 }
+?>
 --INI--
 precision=14
 --FILE--
@@ -40,10 +41,6 @@ set_error_handler("foo");
 
 $var1 = "another string";
 $var2 = array(2,3,4);
-
-// a variable which is unset
-$unset_var = 10.5;
-unset( $unset_var );
 
 class point
 {
@@ -152,10 +149,6 @@ $var_values = array (
   new point(NULL, NULL),
   new point(2.5, 40.5),
   new point(0, 0),
-
-  /* undefined/unset vars */
-  $unset_var,
-  $undef_var
 );
 
 // test conversion to these types
@@ -188,9 +181,6 @@ foreach ($types as $type) {
 echo "Done\n";
 ?>
 --EXPECT--
-8: Undefined variable: unset_var
-8: Undefined variable: undef_var
-
 *** Testing settype() & gettype() : usage variations ***
 
 -- Setting type of data to integer --
@@ -587,16 +577,6 @@ string(6) "object"
 bool(true)
 int(1)
 string(7) "integer"
--- Iteration 79 --
-string(4) "NULL"
-bool(true)
-int(0)
-string(7) "integer"
--- Iteration 80 --
-string(4) "NULL"
-bool(true)
-int(0)
-string(7) "integer"
 
 -- Setting type of data to int --
 -- Iteration 1 --
@@ -991,15 +971,5 @@ string(6) "object"
 8: Object of class point could not be converted to int
 bool(true)
 int(1)
-string(7) "integer"
--- Iteration 79 --
-string(4) "NULL"
-bool(true)
-int(0)
-string(7) "integer"
--- Iteration 80 --
-string(4) "NULL"
-bool(true)
-int(0)
 string(7) "integer"
 Done

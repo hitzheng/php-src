@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
@@ -84,6 +82,11 @@ static int BreakIterator_compare_objects(zval *object1,
 	BreakIterator_object	*bio1,
 							*bio2;
 
+	ZEND_COMPARE_OBJECTS_FALLBACK(object1, object2);
+	if (Z_TYPE_P(object1) != Z_TYPE_P(object2)) {
+		return 1; /* object and non-object */
+	}
+
 	bio1 = Z_INTL_BREAKITERATOR_P(object1);
 	bio2 = Z_INTL_BREAKITERATOR_P(object2);
 
@@ -96,16 +99,16 @@ static int BreakIterator_compare_objects(zval *object1,
 /* }}} */
 
 /* {{{ clone handler for BreakIterator */
-static zend_object *BreakIterator_clone_obj(zval *object)
+static zend_object *BreakIterator_clone_obj(zend_object *object)
 {
 	BreakIterator_object	*bio_orig,
 							*bio_new;
 	zend_object				*ret_val;
 
-	bio_orig = Z_INTL_BREAKITERATOR_P(object);
+	bio_orig = php_intl_breakiterator_fetch_object(object);
 	intl_errors_reset(INTL_DATA_ERROR_P(bio_orig));
 
-	ret_val = BreakIterator_ce_ptr->create_object(Z_OBJCE_P(object));
+	ret_val = BreakIterator_ce_ptr->create_object(object->ce);
 	bio_new  = php_intl_breakiterator_fetch_object(ret_val);
 
 	zend_objects_clone_members(&bio_new->zo, &bio_orig->zo);
@@ -136,7 +139,7 @@ static zend_object *BreakIterator_clone_obj(zval *object)
 /* }}} */
 
 /* {{{ get_debug_info handler for BreakIterator */
-static HashTable *BreakIterator_get_debug_info(zval *object, int *is_temp)
+static HashTable *BreakIterator_get_debug_info(zend_object *object, int *is_temp)
 {
 	zval val;
 	HashTable *debug_info;
@@ -147,7 +150,7 @@ static HashTable *BreakIterator_get_debug_info(zval *object, int *is_temp)
 
 	debug_info = zend_new_array(8);
 
-	bio  = Z_INTL_BREAKITERATOR_P(object);
+	bio  = php_intl_breakiterator_fetch_object(object);
 	biter = bio->biter;
 
 	if (biter == NULL) {
@@ -320,7 +323,7 @@ U_CFUNC void breakiterator_register_BreakIterator_class(void)
 	memcpy(&BreakIterator_handlers, &std_object_handlers,
 		sizeof BreakIterator_handlers);
 	BreakIterator_handlers.offset = XtOffsetOf(BreakIterator_object, zo);
-	BreakIterator_handlers.compare_objects = BreakIterator_compare_objects;
+	BreakIterator_handlers.compare = BreakIterator_compare_objects;
 	BreakIterator_handlers.clone_obj = BreakIterator_clone_obj;
 	BreakIterator_handlers.get_debug_info = BreakIterator_get_debug_info;
 	BreakIterator_handlers.free_obj = BreakIterator_objects_free;

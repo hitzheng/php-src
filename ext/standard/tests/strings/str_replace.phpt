@@ -223,15 +223,6 @@ var_dump( str_replace("worldS", "FOUND", "$strS") );
 var_dump( str_replace("worldS", "FOUND", "${str}S") );
 var_dump( str_replace("worldS", "FOUND", "{$str}S") );
 
-
-echo "\n*** Testing error conditions ***";
-/* Invalid arguments */
-var_dump( str_replace() );
-var_dump( str_replace("") );
-var_dump( str_replace(NULL) );
-var_dump( str_replace(1, 2) );
-var_dump( str_replace(1,2,3,$var,5) );
-
 fclose($resource1);
 closedir($resource2);
 echo "Done\n";
@@ -885,7 +876,7 @@ array(2) {
 }
 int(6)
 
-Notice: Array to string conversion in %s on line %d
+Warning: Array to string conversion in %s on line %d
 array(2) {
   [0]=>
   string(15) "ArrayArrayArray"
@@ -934,24 +925,8 @@ int(0)
 string(5) "FOUND"
 string(5) "FOUND"
 
-Notice: Undefined variable: strS in %s on line %d
+Warning: Undefined variable: strS in %s on line %d
 string(0) ""
 string(5) "FOUND"
 string(5) "FOUND"
-
-*** Testing error conditions ***
-Warning: str_replace() expects at least 3 parameters, 0 given in %s on line %d
-NULL
-
-Warning: str_replace() expects at least 3 parameters, 1 given in %s on line %d
-NULL
-
-Warning: str_replace() expects at least 3 parameters, 1 given in %s on line %d
-NULL
-
-Warning: str_replace() expects at least 3 parameters, 2 given in %s on line %d
-NULL
-
-Warning: str_replace() expects at most 4 parameters, 5 given in %s on line %d
-NULL
 Done

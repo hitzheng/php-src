@@ -72,7 +72,11 @@ $pad_length = "20";
 $count = 1;
 foreach($inputs as $input) {
   echo "-- Iteration $count --\n";
-  var_dump( stristr("Hello World", $input) );
+  try {
+    var_dump( stristr("Hello World", $input) );
+  } catch (TypeError $e) {
+    echo $e->getMessage(), "\n";
+  }
   $count ++;
 }
 
@@ -80,88 +84,46 @@ fclose($file_handle);  //closing the file handle
 
 ?>
 ===DONE===
---EXPECTF--
+--EXPECT--
 *** Testing stristr() function: with unexpected inputs for 'needle' argument ***
 -- Iteration 1 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
 bool(false)
 -- Iteration 2 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
 bool(false)
 -- Iteration 3 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
 bool(false)
 -- Iteration 4 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
 bool(false)
 -- Iteration 5 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
 bool(false)
 -- Iteration 6 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
 bool(false)
 -- Iteration 7 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
 bool(false)
 -- Iteration 8 --
-
-Warning: stristr(): needle is not a string or an integer in %s on line %d
-bool(false)
+stristr() expects parameter 2 to be string, array given
 -- Iteration 9 --
-
-Warning: stristr(): needle is not a string or an integer in %s on line %d
-bool(false)
+stristr() expects parameter 2 to be string, array given
 -- Iteration 10 --
-
-Warning: stristr(): needle is not a string or an integer in %s on line %d
-bool(false)
+stristr() expects parameter 2 to be string, array given
 -- Iteration 11 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
 bool(false)
 -- Iteration 12 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
-bool(false)
+string(11) "Hello World"
 -- Iteration 13 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
 bool(false)
 -- Iteration 14 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
-bool(false)
+string(11) "Hello World"
 -- Iteration 15 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
-bool(false)
+string(11) "Hello World"
 -- Iteration 16 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
-bool(false)
+string(11) "Hello World"
 -- Iteration 17 --
-
-Notice: Object of class sample could not be converted to int in %s on line %d
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
 bool(false)
 -- Iteration 18 --
-
-Warning: stristr(): needle is not a string or an integer in %s on line %d
-bool(false)
+stristr() expects parameter 2 to be string, resource given
 -- Iteration 19 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
-bool(false)
+string(11) "Hello World"
 -- Iteration 20 --
-
-Deprecated: stristr(): Non-string needles will be interpreted as strings in the future. Use an explicit chr() call to preserve the current behavior in %s on line %d
-bool(false)
+string(11) "Hello World"
 ===DONE===

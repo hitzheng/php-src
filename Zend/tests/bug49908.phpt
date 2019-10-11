@@ -1,5 +1,5 @@
 --TEST--
-Bug #49908 (throwing exception in __autoload crashes when interface is not defined)
+Bug #49908 (throwing exception in autoloader crashes when interface is not defined)
 --FILE--
 <?php
 
@@ -13,10 +13,17 @@ spl_autoload_register(function ($className) {
 	}
 });
 
-new Foo;
+try {
+    new Foo();
+} catch (Exception $e) { }
+
+// We never reach here.
+var_dump(new Foo());
 
 ?>
 --EXPECTF--
+string(3) "Foo"
+string(3) "Bar"
 string(3) "Foo"
 string(3) "Bar"
 

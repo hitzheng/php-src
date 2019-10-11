@@ -1,8 +1,6 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -29,6 +27,7 @@
 #include "php_json.h"
 #include "php_json_encoder.h"
 #include "php_json_parser.h"
+#include "json_arginfo.h"
 #include <zend_exceptions.h>
 
 static PHP_MINFO_FUNCTION(json);
@@ -42,27 +41,6 @@ PHP_JSON_API zend_class_entry *php_json_exception_ce;
 
 PHP_JSON_API ZEND_DECLARE_MODULE_GLOBALS(json)
 
-/* {{{ arginfo */
-ZEND_BEGIN_ARG_INFO_EX(arginfo_json_encode, 0, 0, 1)
-	ZEND_ARG_INFO(0, value)
-	ZEND_ARG_INFO(0, options)
-	ZEND_ARG_INFO(0, depth)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_json_decode, 0, 0, 1)
-	ZEND_ARG_INFO(0, json)
-	ZEND_ARG_INFO(0, assoc)
-	ZEND_ARG_INFO(0, depth)
-	ZEND_ARG_INFO(0, options)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_json_last_error, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_json_last_error_msg, 0)
-ZEND_END_ARG_INFO()
-/* }}} */
-
 /* {{{ json_functions[] */
 static const zend_function_entry json_functions[] = {
 	PHP_FE(json_encode, arginfo_json_encode)
@@ -74,12 +52,8 @@ static const zend_function_entry json_functions[] = {
 /* }}} */
 
 /* {{{ JsonSerializable methods */
-ZEND_BEGIN_ARG_INFO(json_serialize_arginfo, 0)
-	/* No arguments */
-ZEND_END_ARG_INFO();
-
 static const zend_function_entry json_serializable_interface[] = {
-	PHP_ABSTRACT_ME(JsonSerializable, jsonSerialize, json_serialize_arginfo)
+	PHP_ABSTRACT_ME(JsonSerializable, jsonSerialize, arginfo_class_JsonSerializable_jsonSerialize)
 	PHP_FE_END
 };
 /* }}} */
@@ -186,7 +160,6 @@ static PHP_MINFO_FUNCTION(json)
 {
 	php_info_print_table_start();
 	php_info_print_table_row(2, "json support", "enabled");
-	php_info_print_table_row(2, "json version", PHP_JSON_VERSION);
 	php_info_print_table_end();
 }
 /* }}} */
@@ -385,12 +358,3 @@ static PHP_FUNCTION(json_last_error_msg)
 	RETURN_STRING(php_json_get_error_msg(JSON_G(error_code)));
 }
 /* }}} */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

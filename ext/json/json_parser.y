@@ -1,9 +1,7 @@
 %code top {
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -32,10 +30,6 @@ int json_yydebug = 1;
 #define YYFREE free
 #endif
 
-#define PHP_JSON_USE(uv) ((void) (uv))
-#define PHP_JSON_USE_1(uvr, uv1) PHP_JSON_USE(uvr); PHP_JSON_USE(uv1)
-#define PHP_JSON_USE_2(uvr, uv1, uv2) PHP_JSON_USE(uvr); PHP_JSON_USE(uv1); PHP_JSON_USE(uv2)
-
 #define PHP_JSON_DEPTH_DEC --parser->depth
 #define PHP_JSON_DEPTH_INC \
 	if (parser->max_depth && parser->depth >= parser->max_depth) { \
@@ -46,8 +40,8 @@ int json_yydebug = 1;
 
 }
 
-%pure-parser
-%name-prefix "php_json_yy"
+%define api.pure full
+%define api.prefix {php_json_yy}
 %lex-param  { php_json_parser *parser  }
 %parse-param { php_json_parser *parser }
 
@@ -67,10 +61,10 @@ int json_yydebug = 1;
 %token <value> PHP_JSON_T_DOUBLE
 %token <value> PHP_JSON_T_STRING
 %token <value> PHP_JSON_T_ESTRING
-%token <value> PHP_JSON_T_EOI
-%token <value> PHP_JSON_T_ERROR
+%token PHP_JSON_T_EOI
+%token PHP_JSON_T_ERROR
 
-%type <value> start object key value array errlex
+%type <value> start object key value array
 %type <value> members member elements element
 %type <pair> pair
 
@@ -90,11 +84,7 @@ start:
 			{
 				ZVAL_COPY_VALUE(&$$, &$1);
 				ZVAL_COPY_VALUE(parser->return_value, &$1);
-				PHP_JSON_USE($2); YYACCEPT;
-			}
-	|	value errlex
-			{
-				PHP_JSON_USE_2($$, $1, $2);
+				YYACCEPT;
 			}
 ;
 
@@ -148,10 +138,6 @@ member:
 				}
 				ZVAL_COPY_VALUE(&$$, &$1);
 			}
-	|	member errlex
-			{
-				PHP_JSON_USE_2($$, $1, $2);
-			}
 ;
 
 pair:
@@ -159,10 +145,6 @@ pair:
 			{
 				$$.key = Z_STR($1);
 				ZVAL_COPY_VALUE(&$$.val, &$3);
-			}
-	|	key errlex
-			{
-				PHP_JSON_USE_2($$, $1, $2);
 			}
 ;
 
@@ -212,10 +194,6 @@ element:
 				parser->methods.array_append(parser, &$1, &$3);
 				ZVAL_COPY_VALUE(&$$, &$1);
 			}
-	|	element errlex
-			{
-				PHP_JSON_USE_2($$, $1, $2);
-			}
 ;
 
 key:
@@ -233,15 +211,6 @@ value:
 	|	PHP_JSON_T_NUL
 	|	PHP_JSON_T_TRUE
 	|	PHP_JSON_T_FALSE
-	|	errlex
-;
-
-errlex:
-		PHP_JSON_T_ERROR
-			{
-				PHP_JSON_USE_1($$, $1);
-				YYERROR;
-			}
 ;
 
 %% /* Functions */
@@ -274,7 +243,6 @@ static int php_json_parser_object_update(php_json_parser *parser, zval *object, 
 	if (Z_TYPE_P(object) == IS_ARRAY) {
 		zend_symtable_update(Z_ARRVAL_P(object), key, zvalue);
 	} else {
-		zval zkey;
 		if (ZSTR_LEN(key) > 0 && ZSTR_VAL(key)[0] == '\0') {
 			parser->scanner.errcode = PHP_JSON_ERROR_INVALID_PROPERTY_NAME;
 			zend_string_release_ex(key, 0);
@@ -282,8 +250,7 @@ static int php_json_parser_object_update(php_json_parser *parser, zval *object, 
 			zval_ptr_dtor_nogc(object);
 			return FAILURE;
 		}
-		ZVAL_NEW_STR(&zkey, key);
-		zend_std_write_property(object, &zkey, zvalue, NULL);
+		zend_std_write_property(Z_OBJ_P(object), key, zvalue, NULL);
 		Z_TRY_DELREF_P(zvalue);
 	}
 	zend_string_release_ex(key, 0);

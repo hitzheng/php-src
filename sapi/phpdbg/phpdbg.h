@@ -1,8 +1,6 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -46,7 +44,7 @@
 #include "zend_ini_scanner.h"
 #include "zend_stream.h"
 #include "zend_signal.h"
-#if !defined(_WIN32) && !defined(ZEND_SIGNALS) && defined(HAVE_SIGNAL_H)
+#if !defined(_WIN32) && !defined(ZEND_SIGNALS)
 #	include <signal.h>
 #elif defined(PHP_WIN32)
 #	include "win32/signal.h"
@@ -83,12 +81,14 @@
 #define zend_hash_str_add(...) zend_hash_str_add_tmp(__VA_ARGS__)
 #endif
 
-#ifdef HAVE_LIBREADLINE
-#	include <readline/readline.h>
-#	include <readline/history.h>
-#endif
-#ifdef HAVE_LIBEDIT
-#	include <editline/readline.h>
+#ifdef HAVE_PHPDBG_READLINE
+# ifdef HAVE_LIBREADLINE
+#	 include <readline/readline.h>
+#	 include <readline/history.h>
+# endif
+# ifdef HAVE_LIBEDIT
+#	 include <editline/readline.h>
+# endif
 #endif
 
 /* {{{ remote console headers */
@@ -119,7 +119,7 @@
 #if !defined(PHPDBG_WEBDATA_TRANSFER_H) && !defined(PHPDBG_WEBHELPER_H)
 
 #ifdef ZTS
-# define PHPDBG_G(v) TSRMG(phpdbg_globals_id, zend_phpdbg_globals *, v)
+# define PHPDBG_G(v) ZEND_TSRMG(phpdbg_globals_id, zend_phpdbg_globals *, v)
 #else
 # define PHPDBG_G(v) (phpdbg_globals.v)
 #endif
@@ -275,7 +275,7 @@ ZEND_BEGIN_MODULE_GLOBALS(phpdbg)
 
 	zend_op_array *(*compile_file)(zend_file_handle *file_handle, int type);
 	zend_op_array *(*init_compile_file)(zend_file_handle *file_handle, int type);
-	zend_op_array *(*compile_string)(zval *source_string, char *filename);
+	zend_op_array *(*compile_string)(zval *source_string, const char *filename);
 	HashTable file_sources;
 
 	FILE *oplog;                                 /* opline log */
@@ -288,7 +288,7 @@ ZEND_BEGIN_MODULE_GLOBALS(phpdbg)
 		int fd;
 	} io[PHPDBG_IO_FDS];                         /* io */
 	int eol;                                     /* type of line ending to use */
-	size_t (*php_stdiop_write)(php_stream *, const char *, size_t);
+	ssize_t (*php_stdiop_write)(php_stream *, const char *, size_t);
 	int in_script_xml;                           /* in <stream> output mode */
 	struct {
 		zend_bool active;

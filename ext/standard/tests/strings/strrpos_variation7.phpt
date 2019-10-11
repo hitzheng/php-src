@@ -25,12 +25,10 @@ echo "*** Done ***";
 --EXPECTF--
 *** Testing strrpos() function: with heredoc strings ***
 -- With empty heredoc string --
-bool(false)
-bool(false)
+int(0)
 
-Deprecated: strrpos(): Non-string needles will be interpreted as strings in %s on line %d
+Warning: strrpos(): Offset not contained in string in %s on line %d
 bool(false)
-
-Deprecated: strrpos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
+int(0)
+int(0)
 *** Done ***

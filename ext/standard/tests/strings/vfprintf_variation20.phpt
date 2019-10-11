@@ -84,7 +84,7 @@ $values = array(
 );
 
 /* creating dumping file */
-$data_file = dirname(__FILE__) . '/vfprintf_variation20.txt';
+$data_file = __DIR__ . '/vfprintf_variation20.txt';
 if (!($fp = fopen($data_file, 'wt')))
    return;
 
@@ -108,15 +108,15 @@ unlink($data_file);
 --EXPECTF--
 *** Testing vfprintf() : with unexpected values for format argument ***
 
-Notice: Array to string conversion in %s on line %d
+Warning: Array to string conversion in %s on line %d
 
-Notice: Array to string conversion in %s on line %d
+Warning: Array to string conversion in %s on line %d
 
-Notice: Array to string conversion in %s on line %d
+Warning: Array to string conversion in %s on line %d
 
-Notice: Array to string conversion in %s on line %d
+Warning: Array to string conversion in %s on line %d
 
-Notice: Array to string conversion in %s on line %d
+Warning: Array to string conversion in %s on line %d
 
 *** Testing vprintf() with with unexpected values for format argument ***
 

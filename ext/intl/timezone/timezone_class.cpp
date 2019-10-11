@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
@@ -98,7 +96,7 @@ U_CFUNC zval *timezone_convert_to_datetimezone(const TimeZone *timeZone,
 			goto error;
 		}
 		ZVAL_STR(&arg, u8str);
-		zend_call_method_with_1_params(ret, NULL, &Z_OBJCE_P(ret)->constructor, "__construct", NULL, &arg);
+		zend_call_method_with_1_params(Z_OBJ_P(ret), NULL, &Z_OBJCE_P(ret)->constructor, "__construct", NULL, &arg);
 		if (EG(exception)) {
 			spprintf(&message, 0,
 				"%s: DateTimeZone constructor threw exception", func);
@@ -179,7 +177,10 @@ U_CFUNC TimeZone *timezone_process_timezone_argument(zval *zv_timezone,
 		UnicodeString	id,
 						gottenId;
 		UErrorCode		status = U_ZERO_ERROR; /* outside_error may be NULL */
-		convert_to_string_ex(zv_timezone);
+		if (!try_convert_to_string(zv_timezone)) {
+			zval_ptr_dtor_str(&local_zv_tz);
+			return NULL;
+		}
 		if (intl_stringFromChar(id, Z_STRVAL_P(zv_timezone), Z_STRLEN_P(zv_timezone),
 				&status) == FAILURE) {
 			spprintf(&message, 0, "%s: Time zone identifier given is not a "
@@ -221,17 +222,17 @@ U_CFUNC TimeZone *timezone_process_timezone_argument(zval *zv_timezone,
 /* }}} */
 
 /* {{{ clone handler for TimeZone */
-static zend_object *TimeZone_clone_obj(zval *object)
+static zend_object *TimeZone_clone_obj(zend_object *object)
 {
 	TimeZone_object		*to_orig,
 						*to_new;
 	zend_object			*ret_val;
 	intl_error_reset(NULL);
 
-	to_orig = Z_INTL_TIMEZONE_P(object);
+	to_orig = php_intl_timezone_fetch_object(object);
 	intl_error_reset(TIMEZONE_ERROR_P(to_orig));
 
-	ret_val = TimeZone_ce_ptr->create_object(Z_OBJCE_P(object));
+	ret_val = TimeZone_ce_ptr->create_object(object->ce);
 	to_new  = php_intl_timezone_fetch_object(ret_val);
 
 	zend_objects_clone_members(&to_new->zo, &to_orig->zo);
@@ -267,6 +268,9 @@ static int TimeZone_compare_objects(zval *object1, zval *object2)
 {
 	TimeZone_object		*to1,
 						*to2;
+
+	ZEND_COMPARE_OBJECTS_FALLBACK(object1, object2);
+
 	to1 = Z_INTL_TIMEZONE_P(object1);
 	to2 = Z_INTL_TIMEZONE_P(object2);
 
@@ -285,7 +289,7 @@ static int TimeZone_compare_objects(zval *object1, zval *object2)
 /* }}} */
 
 /* {{{ get_debug_info handler for TimeZone */
-static HashTable *TimeZone_get_debug_info(zval *object, int *is_temp)
+static HashTable *TimeZone_get_debug_info(zend_object *object, int *is_temp)
 {
 	zval			zv;
 	TimeZone_object	*to;
@@ -299,7 +303,7 @@ static HashTable *TimeZone_get_debug_info(zval *object, int *is_temp)
 
 	debug_info = zend_new_array(8);
 
-	to = Z_INTL_TIMEZONE_P(object);
+	to = php_intl_timezone_fetch_object(object);
 	tz = to->utimezone;
 
 	if (tz == NULL) {
@@ -502,7 +506,7 @@ U_CFUNC void timezone_register_IntlTimeZone_class(void)
 	TimeZone_ce_ptr = zend_register_internal_class(&ce);
 	if (!TimeZone_ce_ptr) {
 		//can't happen now without bigger problems before
-		php_error_docref0(NULL, E_ERROR,
+		php_error_docref(NULL, E_ERROR,
 			"IntlTimeZone: class registration has failed.");
 		return;
 	}
@@ -511,7 +515,7 @@ U_CFUNC void timezone_register_IntlTimeZone_class(void)
 		sizeof TimeZone_handlers);
 	TimeZone_handlers.offset = XtOffsetOf(TimeZone_object, zo);
 	TimeZone_handlers.clone_obj = TimeZone_clone_obj;
-	TimeZone_handlers.compare_objects = TimeZone_compare_objects;
+	TimeZone_handlers.compare = TimeZone_compare_objects;
 	TimeZone_handlers.get_debug_info = TimeZone_get_debug_info;
 	TimeZone_handlers.dtor_obj = TimeZone_objects_dtor;
 	TimeZone_handlers.free_obj = TimeZone_objects_free;

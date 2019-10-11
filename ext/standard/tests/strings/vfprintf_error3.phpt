@@ -13,7 +13,7 @@ precision=14
  */
 
 // Open handle
-$file = 'vfprintf_test.txt';
+$file = 'vfprintf_error3.txt';
 $fp = fopen( $file, "a+" );
 
 echo "\n-- Testing vfprintf() function with wrong variable types as argument --\n";
@@ -39,14 +39,14 @@ fclose( $fp );
 --CLEAN--
 <?php
 
-$file = 'vfprintf_test.txt';
+$file = 'vfprintf_error3.txt';
 unlink( $file );
 
 ?>
 --EXPECTF--
 -- Testing vfprintf() function with wrong variable types as argument --
 
-Notice: Array to string conversion in %s on line %d
+Warning: Array to string conversion in %s on line %d
 int(5)
 string(5) "Array"
 int(9)

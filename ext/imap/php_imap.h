@@ -1,8 +1,6 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -23,7 +21,7 @@
    |          Hartmut Holzgraefe  <hholzgra@php.net>                      |
    |          Jani Taskinen       <sniper@iki.fi>                         |
    |          Daniel R. Kalowsky  <kalowsky@php.net>                      |
-   | PHP 4.0 updates:  Zeev Suraski <zeev@zend.com>                       |
+   | PHP 4.0 updates:  Zeev Suraski <zeev@php.net>                        |
    +----------------------------------------------------------------------+
  */
 
@@ -163,10 +161,10 @@ PHP_FUNCTION(imap_fetchtext);
 PHP_FUNCTION(imap_uid);
 PHP_FUNCTION(imap_msgno);
 PHP_FUNCTION(imap_list);
-PHP_FUNCTION(imap_list_full);
+PHP_FUNCTION(imap_getmailboxes);
 PHP_FUNCTION(imap_listscan);
 PHP_FUNCTION(imap_lsub);
-PHP_FUNCTION(imap_lsub_full);
+PHP_FUNCTION(imap_getsubscribed);
 PHP_FUNCTION(imap_create);
 PHP_FUNCTION(imap_rename);
 PHP_FUNCTION(imap_status);
@@ -229,13 +227,15 @@ ZEND_BEGIN_MODULE_GLOBALS(imap)
 #endif
 	/* php_stream for php_mail_gets() */
 	php_stream *gets_stream;
+	zend_bool enable_rsh;
 ZEND_END_MODULE_GLOBALS(imap)
 
-#ifdef ZTS
-# define IMAPG(v) TSRMG(imap_globals_id, zend_imap_globals *, v)
-#else
-# define IMAPG(v) (imap_globals.v)
+#if defined(ZTS) && defined(COMPILE_DL_IMAP)
+ZEND_TSRMLS_CACHE_EXTERN()
 #endif
+
+ZEND_EXTERN_MODULE_GLOBALS(imap)
+#define IMAPG(v) ZEND_MODULE_GLOBALS_ACCESSOR(imap, v)
 
 #else
 

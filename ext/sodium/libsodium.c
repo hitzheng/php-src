@@ -1,8 +1,6 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -358,8 +356,18 @@ static const zend_function_entry sodium_functions[] = {
 	PHP_FE_END
 };
 
+/* Load after the "standard" module in order to give it
+ * priority in registering argon2i/argon2id password hashers.
+ */
+static const zend_module_dep sodium_deps[] = {
+	ZEND_MOD_REQUIRED("standard")
+	ZEND_MOD_END
+};
+
 zend_module_entry sodium_module_entry = {
-	STANDARD_MODULE_HEADER,
+	STANDARD_MODULE_HEADER_EX,
+	NULL,
+	sodium_deps,
 	"sodium",
 	sodium_functions,
 	PHP_MINIT(sodium),
@@ -387,8 +395,9 @@ static void sodium_remove_param_values_from_backtrace(zend_object *obj) {
 		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(trace), frame) {
 			if (Z_TYPE_P(frame) == IS_ARRAY) {
 				zval *args = zend_hash_str_find(Z_ARRVAL_P(frame), "args", sizeof("args")-1);
-				if (args && Z_TYPE_P(frame) == IS_ARRAY) {
-					zend_hash_clean(Z_ARRVAL_P(args));
+				if (args) {
+					zval_ptr_dtor(args);
+					ZVAL_EMPTY_ARRAY(args);
 				}
 			}
 		} ZEND_HASH_FOREACH_END();
@@ -631,6 +640,13 @@ PHP_MINIT_FUNCTION(sodium)
 	REGISTER_LONG_CONSTANT("SODIUM_BASE64_VARIANT_URLSAFE_NO_PADDING",
 						   sodium_base64_VARIANT_URLSAFE_NO_PADDING, CONST_CS | CONST_PERSISTENT);
 #endif
+
+#if SODIUM_LIBRARY_VERSION_MAJOR > 9 || (SODIUM_LIBRARY_VERSION_MAJOR == 9 && SODIUM_LIBRARY_VERSION_MINOR >= 6)
+	if (FAILURE == PHP_MINIT(sodium_password_hash)(INIT_FUNC_ARGS_PASSTHRU)) {
+		return FAILURE;
+	}
+#endif
+
 	return SUCCESS;
 }
 
@@ -934,6 +950,7 @@ PHP_FUNCTION(sodium_crypto_generichash_init)
 		zend_throw_exception(sodium_exception_ce, "unsupported key length", 0);
 		return;
 	}
+	memset(&state_tmp, 0, sizeof state_tmp);
 	if (crypto_generichash_init((void *) &state_tmp, key, (size_t) key_len,
 								(size_t) hash_len) != 0) {
 		zend_throw_exception(sodium_exception_ce, "internal error", 0);
@@ -1678,7 +1695,8 @@ PHP_FUNCTION(sodium_crypto_sign_detached)
 		zend_throw_exception(sodium_exception_ce, "signature has a bogus size", 0);
 		return;
 	}
-	ZEND_ASSERT(ZSTR_VAL(signature)[signature_real_len] == 0);
+	PHP_SODIUM_ZSTR_TRUNCATE(signature, (size_t) signature_real_len);
+	ZSTR_VAL(signature)[signature_real_len] = 0;
 
 	RETURN_NEW_STR(signature);
 }
@@ -2780,7 +2798,7 @@ PHP_FUNCTION(sodium_base642bin)
 							 "invalid base64 variant identifier", 0);
 		return;
 	}
-	bin_len = b64_len / 4U * 3U + 1U;
+	bin_len = b64_len / 4U * 3U + 2U;
 	bin = zend_string_alloc(bin_len, 0);
 	if (sodium_base642bin((unsigned char *) ZSTR_VAL(bin), bin_len,
 						  b64, b64_len,
@@ -3399,9 +3417,6 @@ PHP_FUNCTION(sodium_pad)
 	}
 	xpadded_len = unpadded_len + xpadlen;
 	padded = zend_string_alloc(xpadded_len + 1U, 0);
-	st = 1U;
-	i = 0U;
-	k = unpadded_len;
 	if (unpadded_len > 0) {
 		st = 1U;
 		i = 0U;
@@ -3721,12 +3736,3 @@ PHP_FUNCTION(sodium_crypto_secretstream_xchacha20poly1305_rekey)
 	crypto_secretstream_xchacha20poly1305_rekey((void *) state);
 }
 #endif
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: sw=4 ts=4 tw=78 fdm=marker
- * vim<600: sw=4 ts=4 tw=78
- */

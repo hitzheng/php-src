@@ -1,8 +1,6 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -243,7 +241,6 @@ PHP_FUNCTION(com_dotnet_create_instance)
 			&assembly_name, &assembly_name_len,
 			&datatype_name, &datatype_name_len,
 			&cp)) {
-		php_com_throw_exception(E_INVALIDARG, "Could not create .Net object - invalid arguments!");
 		return;
 	}
 

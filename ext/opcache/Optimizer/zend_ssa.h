@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | Zend Engine, SSA - Static Single Assignment Form                     |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -12,7 +12,7 @@
    | obtain it through the world-wide-web, please send a note to          |
    | license@php.net so we can mail you a copy immediately.               |
    +----------------------------------------------------------------------+
-   | Authors: Dmitry Stogov <dmitry@zend.com>                             |
+   | Authors: Dmitry Stogov <dmitry@php.net>                              |
    +----------------------------------------------------------------------+
 */
 
@@ -95,7 +95,6 @@ typedef struct _zend_ssa_op {
 typedef enum _zend_ssa_alias_kind {
 	NO_ALIAS,
 	SYMTABLE_ALIAS,
-	PHP_ERRORMSG_ALIAS,
 	HTTP_RESPONSE_HEADER_ALIAS
 } zend_ssa_alias_kind;
 
@@ -132,12 +131,11 @@ typedef struct _zend_ssa_var_info {
 
 typedef struct _zend_ssa {
 	zend_cfg               cfg;            /* control flow graph             */
-	int                    rt_constants;   /* run-time or compile-time       */
 	int                    vars_count;     /* number of SSA variables        */
+	int                    sccs;           /* number of SCCs                 */
 	zend_ssa_block        *blocks;         /* array of SSA blocks            */
 	zend_ssa_op           *ops;            /* array of SSA instructions      */
 	zend_ssa_var          *vars;           /* use/def chain of SSA variables */
-	int                    sccs;           /* number of SCCs                 */
 	zend_ssa_var_info     *var_info;
 } zend_ssa;
 
@@ -220,7 +218,9 @@ static zend_always_inline zend_bool zend_ssa_is_no_val_use(const zend_op *opline
 	if (opline->opcode == ZEND_FE_FETCH_R) {
 		return ssa_op->op2_use == var && ssa_op->op1_use != var;
 	}
-	if (ssa_op->result_use == var && opline->opcode != ZEND_ADD_ARRAY_ELEMENT) {
+	if (ssa_op->result_use == var
+			&& opline->opcode != ZEND_ADD_ARRAY_ELEMENT
+			&& opline->opcode != ZEND_ADD_ARRAY_UNPACK) {
 		return ssa_op->op1_use != var && ssa_op->op2_use != var;
 	}
 	return 0;
@@ -316,11 +316,3 @@ static zend_always_inline void zend_ssa_rename_defs_of_instr(zend_ssa *ssa, zend
 } while (0)
 
 #endif /* ZEND_SSA_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * indent-tabs-mode: t
- * End:
- */

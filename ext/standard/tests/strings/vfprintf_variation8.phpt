@@ -12,8 +12,6 @@ Test vfprintf() function : usage variations - string formats with non-string val
  * the '$format' and '$args' arguments of the function
 */
 
-error_reporting(E_ALL & ~E_NOTICE);
-
 echo "*** Testing vfprintf() : string formats and non-string values ***\n";
 
 // defining array of string formats
@@ -60,7 +58,7 @@ $args_array = array(
 );
 
 /* creating dumping file */
-$data_file = dirname(__FILE__) . '/vfprintf_variation8.txt';
+$data_file = __DIR__ . '/vfprintf_variation8.txt';
 if (!($fp = fopen($data_file, 'wt')))
    return;
 
@@ -81,8 +79,44 @@ unlink($data_file);
 
 ?>
 ===DONE===
---EXPECT--
+--EXPECTF--
 *** Testing vfprintf() : string formats and non-string values ***
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
+
+Warning: Array to string conversion in %s on line %d
 
 -- Iteration 1 --
 2.2 0.2 10.2 

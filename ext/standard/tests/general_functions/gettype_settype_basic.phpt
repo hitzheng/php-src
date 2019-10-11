@@ -28,7 +28,7 @@ set_error_handler("foo");
 echo "**** Testing gettype() and settype() functions ****\n";
 
 $fp = fopen(__FILE__, "r");
-$dfp = opendir( dirname(__FILE__) );
+$dfp = opendir( __DIR__ );
 
 $var1 = "another string";
 $var2 = array(2,3,4);
@@ -846,7 +846,7 @@ string(6) "object"
 
 -- Setting type of data to string --
 -- Iteration 1 --
-8: Array to string conversion
+2: Array to string conversion
 bool(true)
 string(5) "Array"
 string(6) "string"
@@ -855,7 +855,7 @@ bool(true)
 string(14) "another string"
 string(6) "string"
 -- Iteration 3 --
-8: Array to string conversion
+2: Array to string conversion
 bool(true)
 string(5) "Array"
 string(6) "string"

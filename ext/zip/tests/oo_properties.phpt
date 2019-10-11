@@ -7,7 +7,7 @@ if(!extension_loaded('zip')) die('skip');
 --FILE--
 <?php
 
-$dirname = dirname(__FILE__) . '/';
+$dirname = __DIR__ . '/';
 $file = $dirname . '__property_test.zip';
 
 copy($dirname . 'test_with_comment.zip', $file);
@@ -40,7 +40,7 @@ zip->numFiles (4):
 	empty(): 0
 	isset(): 1
 
-Notice: Undefined property: ZipArchive::$bogus in %s on line %d
+Warning: Undefined property: ZipArchive::$bogus in %s on line %d
 zip->bogus (0):
 	empty(): 1
 	isset(): 0

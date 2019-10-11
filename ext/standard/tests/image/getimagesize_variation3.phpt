@@ -27,8 +27,8 @@ echo "*** Testing getimagesize() : variation ***\n";
 //loop through each element of the array for filename
 foreach($file_types_array as $key => $filename) {
       echo "\n-- $key ($filename) --\n";
-      var_dump( getimagesize(dirname(__FILE__)."/$filename" ) );
-      var_dump( getimagesize(dirname(__FILE__)."/$filename", $info) );
+      var_dump( getimagesize(__DIR__."/$filename" ) );
+      var_dump( getimagesize(__DIR__."/$filename", $info) );
       var_dump( $info );
 };
 ?>
@@ -60,10 +60,10 @@ array(0) {
 
 -- Empty File (blank_file.bmp) --
 
-Notice: getimagesize(): Read error! in %s on line %d
+Notice: getimagesize(): Error reading from %s! in %s on line %d
 bool(false)
 
-Notice: getimagesize(): Read error! in %s on line %d
+Notice: getimagesize(): Error reading from %s! in %s on line %d
 bool(false)
 array(0) {
 }

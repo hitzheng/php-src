@@ -8,15 +8,15 @@ Test getimagesize() function : usage variations  - unexpected type for arg 2
  * Alias to functions:
  */
 
-function test_error_handler($err_no, $err_msg, $filename, $linenum, $vars) {
-	echo "Error: $err_no - $err_msg, $filename($linenum)\n";
+function test_error_handler($err_no, $err_msg, $filename, $linenum) {
+	echo "Error: $err_no - $err_msg\n";
 }
 set_error_handler('test_error_handler');
 
 echo "*** Testing getimagesize() : usage variations ***\n";
 
 // Initialise function arguments not being substituted (if any)
-$imagefile = dirname(__FILE__)."/test1pix.jpg";
+$imagefile = __DIR__."/test1pix.jpg";
 
 //get an unset variable
 $unset_var = 10;
@@ -79,10 +79,10 @@ foreach($values as $key => $value) {
 
 ?>
 ===DONE===
---EXPECTF--
+--EXPECT--
 *** Testing getimagesize() : usage variations ***
-Error: 8 - Undefined variable: undefined_var, %s(%d)
-Error: 8 - Undefined variable: unset_var, %s(%d)
+Error: 2 - Undefined variable: undefined_var
+Error: 2 - Undefined variable: unset_var
 
 -- Arg value 0 --
 string(28) "4a46494600010201006000600000"

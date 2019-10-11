@@ -28,8 +28,8 @@ ZEND_EXTERN_MODULE_GLOBALS(phpdbg)
 
 %}
 
-%pure-parser
-%error-verbose
+%define api.pure full
+%define parse.error verbose
 
 %code requires {
 #include "phpdbg.h"

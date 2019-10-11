@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
@@ -43,8 +41,6 @@ static void _php_intlrbbi_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
 
 	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "s|b",
 			&rules, &rules_len, &compiled) == FAILURE) {
-		intl_error_set(NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"rbbi_create_instance: bad arguments", 0);
 		return;
 	}
 
@@ -94,7 +90,7 @@ U_CFUNC PHP_METHOD(IntlRuleBasedBreakIterator, __construct)
 	zend_error_handling error_handling;
 
 	zend_replace_error_handling(EH_THROW, IntlException_ce_ptr, &error_handling);
-	return_value = getThis();
+	return_value = ZEND_THIS;
 	_php_intlrbbi_constructor_body(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 	zend_restore_error_handling(&error_handling);
 }
@@ -102,11 +98,9 @@ U_CFUNC PHP_METHOD(IntlRuleBasedBreakIterator, __construct)
 U_CFUNC PHP_FUNCTION(rbbi_get_rules)
 {
 	BREAKITER_METHOD_INIT_VARS;
-	object = getThis();
+	object = ZEND_THIS;
 
 	if (zend_parse_parameters_none() == FAILURE) {
-		intl_error_set(NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"rbbi_get_rules: bad arguments", 0);
 		RETURN_FALSE;
 	}
 
@@ -129,11 +123,9 @@ U_CFUNC PHP_FUNCTION(rbbi_get_rules)
 U_CFUNC PHP_FUNCTION(rbbi_get_rule_status)
 {
 	BREAKITER_METHOD_INIT_VARS;
-	object = getThis();
+	object = ZEND_THIS;
 
 	if (zend_parse_parameters_none() == FAILURE) {
-		intl_error_set(NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"rbbi_get_rule_status: bad arguments", 0);
 		RETURN_FALSE;
 	}
 
@@ -145,11 +137,9 @@ U_CFUNC PHP_FUNCTION(rbbi_get_rule_status)
 U_CFUNC PHP_FUNCTION(rbbi_get_rule_status_vec)
 {
 	BREAKITER_METHOD_INIT_VARS;
-	object = getThis();
+	object = ZEND_THIS;
 
 	if (zend_parse_parameters_none() == FAILURE) {
-		intl_error_set(NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"rbbi_get_rule_status_vec: bad arguments", 0);
 		RETURN_FALSE;
 	}
 
@@ -185,11 +175,9 @@ U_CFUNC PHP_FUNCTION(rbbi_get_rule_status_vec)
 U_CFUNC PHP_FUNCTION(rbbi_get_binary_rules)
 {
 	BREAKITER_METHOD_INIT_VARS;
-	object = getThis();
+	object = ZEND_THIS;
 
 	if (zend_parse_parameters_none() == FAILURE) {
-		intl_error_set(NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"rbbi_get_binary_rules: bad arguments", 0);
 		RETURN_FALSE;
 	}
 

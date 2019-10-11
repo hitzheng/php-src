@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
@@ -116,7 +114,7 @@ static void internal_parse_to_localtime(IntlDateFormatter_object *dfo, char* tex
 	/* Is in DST? */
 	isInDST = ucal_inDaylightTime(parsed_calendar	, &INTL_DATA_ERROR_CODE(dfo));
 	INTL_METHOD_CHECK_STATUS( dfo, "Date parsing - localtime failed : while checking if currently in DST." );
-	add_assoc_long( return_value, CALENDAR_ISDST,(isInDST==1?1:0));
+	add_assoc_long( return_value, CALENDAR_ISDST,isInDST==1);
 }
 /* }}} */
 
@@ -137,7 +135,6 @@ PHP_FUNCTION(datefmt_parse)
 	/* Parse parameters. */
 	if( zend_parse_method_parameters( ZEND_NUM_ARGS(), getThis(), "Os|z!",
 		&object, IntlDateFormatter_ce_ptr, &text_to_parse, &text_len, &z_parse_pos ) == FAILURE ){
-		intl_error_set( NULL, U_ILLEGAL_ARGUMENT_ERROR, "datefmt_parse: unable to parse input params", 0 );
 		RETURN_FALSE;
 	}
 
@@ -182,7 +179,6 @@ PHP_FUNCTION(datefmt_localtime)
 	/* Parse parameters. */
 	if( zend_parse_method_parameters( ZEND_NUM_ARGS(), getThis(), "Os|z!",
 		&object, IntlDateFormatter_ce_ptr, &text_to_parse, &text_len, &z_parse_pos ) == FAILURE ){
-		intl_error_set( NULL, U_ILLEGAL_ARGUMENT_ERROR, "datefmt_parse_to_localtime: unable to parse input params", 0 );
 		RETURN_FALSE;
 	}
 

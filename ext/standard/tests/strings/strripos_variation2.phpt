@@ -75,7 +75,7 @@ foreach ($needles as $needle) {
 }
 ?>
 ===DONE===
---EXPECTF--
+--EXPECT--
 *** Testing strripos() function: with single quoted strings ***
 -- Iteration 1 --
 int(32)
@@ -133,62 +133,30 @@ int(10)
 bool(false)
 int(10)
 -- Iteration 12 --
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
+int(54)
+int(54)
+int(54)
+int(53)
 -- Iteration 13 --
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
+int(54)
+int(54)
+int(54)
+int(53)
 -- Iteration 14 --
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
+int(54)
+int(54)
+int(54)
+int(53)
 -- Iteration 15 --
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-bool(false)
+int(54)
+int(54)
+int(54)
+int(53)
 -- Iteration 16 --
-bool(false)
-bool(false)
-bool(false)
-bool(false)
+int(54)
+int(54)
+int(54)
+int(53)
 -- Iteration 17 --
 int(53)
 int(53)
@@ -280,18 +248,10 @@ bool(false)
 bool(false)
 bool(false)
 -- Iteration 35 --
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-int(23)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-int(23)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-int(23)
-
-Deprecated: strripos(): Non-string needles will be interpreted as strings in %s on line %d
-int(23)
+bool(false)
+bool(false)
+bool(false)
+bool(false)
 -- Iteration 36 --
 int(0)
 bool(false)

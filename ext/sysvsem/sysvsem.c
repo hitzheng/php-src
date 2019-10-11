@@ -1,8 +1,6 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -38,6 +36,7 @@
 #include <sys/sem.h>
 #include <errno.h>
 
+#include "sysvsem_arginfo.h"
 #include "php_sysvsem.h"
 #include "ext/standard/info.h"
 
@@ -54,28 +53,6 @@ union semun {
 #define HAVE_SEMUN 1
 
 #endif
-
-/* {{{ arginfo */
-ZEND_BEGIN_ARG_INFO_EX(arginfo_sem_get, 0, 0, 1)
-	ZEND_ARG_INFO(0, key)
-	ZEND_ARG_INFO(0, max_acquire)
-	ZEND_ARG_INFO(0, perm)
-	ZEND_ARG_INFO(0, auto_release)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_sem_acquire, 0, 0, 1)
-	ZEND_ARG_INFO(0, sem_identifier)
-	ZEND_ARG_INFO(0, nowait)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_sem_release, 0, 0, 1)
-	ZEND_ARG_INFO(0, sem_identifier)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_sem_remove, 0, 0, 1)
-	ZEND_ARG_INFO(0, sem_identifier)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 /* {{{ sysvsem_functions[]
  */
@@ -421,12 +398,3 @@ PHP_FUNCTION(sem_remove)
 /* }}} */
 
 #endif /* HAVE_SYSVSEM */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: sw=4 ts=4 fdm=marker
- * vim<600: sw=4 ts=4
- */
